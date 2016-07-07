@@ -1,5 +1,5 @@
 var uberApp = angular.module('uberApp');
-uberApp.controller("modalController",function($scope,$http,$window,$state, $uibModalInstance, param){
+uberApp.controller("modalController",function($scope,$http,$window,$state, $uibModalInstance,uberService, param){
 	
 	$scope.ride = param.rideDetails;
 	
@@ -7,7 +7,7 @@ uberApp.controller("modalController",function($scope,$http,$window,$state, $uibM
 	  $http.post('/reviewDriver', {rating : feedback.rating, comments : feedback.comments, rideId : $scope.ride.ride_id, driverId : $scope.ride.driver_id}).success(function(response){
 		
 		  if(response.statusCode == 200){
-			  uberService.hideRider(true);
+			  uberService.setRideHider(true);
 			  window.location.reload();
 		  }
 		  else

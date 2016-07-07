@@ -9,7 +9,7 @@ module.exports = function (app)	{
 	  app.get('/driverSignUp',	driverSignUp);
 	  app.get('/customerSignUp', customerSignUp);
 	  app.get('/loginOptions',loginOptions);
-	 
+	  app.get('/logout',logout);
 };
 
 function myModalOpen(){
@@ -69,4 +69,9 @@ function partials(req, res)
 {
 	var name = req.params.name;
 	res.render('partials/' + name);
+}
+
+function logout(req,res){
+	req.session.destroy();
+	res.redirect('/');
 }

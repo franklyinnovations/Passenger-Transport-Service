@@ -20,13 +20,25 @@ uberApp.controller("viewDriverReviewsController",function($scope,$http,$window,$
   };
   
   $scope.setCurrentDriver=function(driver){
-    $scope.currentDriver=driver;
+	  $http.get('/getDriverReviews/'+driver.DRIVER_ID).success(function(response){
+	        if(response.statusCode == 200){ 
+	          $scope.countReviews = $scope.countReviews + 10;
+	          $scope.driverReviews=[];
+	          for(msg in response.message){
+	           $scope.driverReviews.push(response.message[msg]);
+	          } 
+	          
+	          $scope.noScrollReviews= false;
+	        }
+	        else
+	          $scope.noScrollReviews = true;
+	      });
+	  //$scope.currentDriver.DRIVER_ID=driver.driver_id;
     
   };
   
  $scope.loadMoreDrivers = function(){
     if(!$scope.noScrollDrivers ){
-       alert($scope.countDrivers);
        $scope.noScrollDrivers = true; 
        $http.get('/getDrivers/'+$scope.countDrivers).success(function(data){
        if(data.statusCode == 200){ 

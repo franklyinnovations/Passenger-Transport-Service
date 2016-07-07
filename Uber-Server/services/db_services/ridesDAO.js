@@ -3,11 +3,12 @@ var mysql = require('mysql');
 
 exports.createRide = function(rideData,locations, callback){
 	
-	sourcePoint = "POINT("+locations.source_location.lat+" "+locations.source_location.lng+")";
-	destPoint = "POINT("+locations.destination_location.lat+" "+locations.destination_location.lng+")"; 
+	var sourcePoint = "POINT("+locations.source_location.lat+" "+locations.source_location.lng+")";
+	var destPoint = "POINT("+locations.destination_location.lat+" "+locations.destination_location.lng+")"; 
 	  
 	  var query = "insert into rides SET ?, source_location = GeomFromText(?), destination_location = GeomFromText(?)";
-	  console.log(query);
+	  console.log("Query is"+query);
+	  console.log("Data is "+rideData);
 	   mysql_pool.query(query, [rideData, sourcePoint, destPoint], function (err, rows, fields) {
 	      console.log(err);
 	     console.log(rows.insertId);
@@ -25,16 +26,16 @@ exports.createRide = function(rideData,locations, callback){
 exports.updateCustomerRide= function(rideData,ssn,locations, rideId, callback){
 	console.log("Finnaly received at destination");
 	destPoint = "POINT("+locations.destination_location.lat+" "+locations.destination_location.lng+")"; 
-	var select_query="select RIDE_STATUS from rides where customer_id=? and ride_id =?";
+	var select_query="select STATUS from rides where customer_id=? and ride_id =?";
 	var params=[ssn,rideId];
 	console.log(mysql.format(select_query,params));
 	mysql_pool.query(select_query, params, function(err, rows, fields){
 		console.log(rows);
 		console.log(rows.length);
-		console.log("Ride status"+rows[0].RIDE_STATUS);
+		console.log("Ride status"+rows[0].STATUS);
 		if(rows){
 			console.log("results is"+rows.length)
-			if(rows[0].RIDE_STATUS == 2 ){
+			if(rows[0].STATUS == 2 ){
 				
 				callback({status : 401, message : "Ride Finished"});
 			}
@@ -59,7 +60,7 @@ exports.updateCustomerRide= function(rideData,ssn,locations, rideId, callback){
 };
 exports.searchBill = function(id,type, count, callback){
 	  if(type=="searchBill_billid"){
-	      query=connection.query("select *, customer.FIRSTNAME AS CFNAME, customer.LASTNAME AS CLNAME, driver.FIRSTNAME as dfname, driver.LASTNAME AS dlname from rides inner join customer on rides.CUSTOMER_ID=customer.CUSTOMER_ID inner join driver on rides.DRIVER_ID=driver.DRIVER_ID where ride_id=? and ride_status = 2 ORDER BY DROP_TIME DESC",[id],function(err,rows,fields){
+	      var query=connection.query("select *, customer.FIRSTNAME AS CFNAME, customer.LASTNAME AS CLNAME, driver.FIRSTNAME as dfname, driver.LASTNAME AS dlname from rides inner join customer on rides.CUSTOMER_ID=customer.CUSTOMER_ID inner join driver on rides.DRIVER_ID=driver.DRIVER_ID where ride_id=? and status = 2 ORDER BY DROP_TIME DESC",[id],function(err,rows,fields){
 	      console.log(query.sql);
 	      if(!err){
 	      if(rows.length<=0){
@@ -74,7 +75,7 @@ exports.searchBill = function(id,type, count, callback){
 	  })
 	  }else if(type=="searchBill_customerId"){
 		  console.log("I am in my zone");
-	    query=mysql_pool.query("select *, DATE_FORMAT(REQUESTED_TIME, '%d %b %y') as pickup_date, TIME(pickup_time) as pickup_time, TIME(drop_time) as drop_time, customer.FIRSTNAME AS CFNAME, customer.LASTNAME AS CLNAME, driver.FIRSTNAME as dfname, driver.LASTNAME AS dlname from rides inner join customer on rides.CUSTOMER_ID=customer.CUSTOMER_ID inner join driver on rides.DRIVER_ID=driver.DRIVER_ID where rides.customer_id=? and rides.RIDE_STATUS = 2 ORDER BY DROP_TIME DESC LIMIT "+count+",10",[id],function(err,rows,fields){
+	    query=mysql_pool.query("select *, DATE_FORMAT(REQUESTED_TIME, '%d %b %y') as pickup_date, TIME(pickup_time) as pickup_time, TIME(drop_time) as drop_time, customer.FIRSTNAME AS CFNAME, customer.LASTNAME AS CLNAME, driver.FIRSTNAME as dfname, driver.LASTNAME AS dlname from rides inner join customer on rides.CUSTOMER_ID=customer.CUSTOMER_ID inner join driver on rides.DRIVER_ID=driver.DRIVER_ID where rides.customer_id=? and rides.STATUS = 2 ORDER BY DROP_TIME DESC LIMIT "+count+",10",[id],function(err,rows,fields){
 	    	console.log(err);
 	      if(!err){
 	      if(rows.length<=0){
@@ -135,7 +136,7 @@ exports.searchBill = function(id,type, count, callback){
 exports.getPendingReview = function(customerId, callback){
 	
 	
-	var query = "select r.*,d.FIRSTNAME as dfname, d.LASTNAME as dlname from rides r, driver d where d.driver_id = r.driver_id and customer_id = ? and review_status not in (2,5) and ride_status = 2";
+	var query = "select r.*,d.FIRSTNAME as dfname, d.LASTNAME as dlname from rides r, driver d where d.driver_id = r.driver_id and customer_id = ?";
 
 	mysql_pool.query(query, [customerId], function (err, rows, fields) {
 	     
@@ -172,7 +173,8 @@ exports.getPendingReview = function(customerId, callback){
 	    			  "driverName" : driverName,
 	    			  "bill_amount" : rows[0].BILL_AMOUNT,
 	    			  "driver_id" : rows[0].DRIVER_ID,
-	    			  "ride_id" : rows[0].RIDE_ID};
+	    			  "ride_id" : rows[0].RIDE_ID,
+	    			  "status":rows[0].STATUS};
 	    	  
 	    	  res = {statusCode : 200, message : data};
 	      }
@@ -193,7 +195,7 @@ exports.deleteCustomerRide=function(rideId,callback){
 	console.log(mysql.format(select_ride_query,params));
 	mysql_pool.query(select_ride_query,params,function(err,results){
 		if(!err){
-			var status=results[0].RIDE_STATUS;
+			var status=results[0].STATUS;
 			if(status==0){
 				var delete_query="delete from rides where ride_id=?";
 				console.log(mysql.format(delete_query,params));
@@ -214,7 +216,7 @@ exports.deleteCustomerRide=function(rideId,callback){
 exports.incompletereview=function(driver_id,callback){
 
 	console.log('Here is the driver id for ')
-query=mysql_pool.query("select * from uber.rides where review_status < 3 and ride_status=2 and driver_id ="+driver_id,function(err,rows,fields){
+query=mysql_pool.query("select * from uber.rides where review_status < 3 and status=2 and driver_id ="+driver_id,function(err,rows,fields){
 if(err)
 	throw err;
 	else

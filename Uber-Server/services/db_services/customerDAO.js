@@ -173,3 +173,21 @@ exports.updateCustomerDetails=function(ssn,firstName,lastName,address,city,state
 		}
 	});
 };
+
+exports.getRideStatus=function(ssn){
+	var get_ride_status_query="select * from customer where customer_id=?";
+	var params=[ssn];
+	mysql_pool.query(get_ride_status_query, params, function (err, rows, fields) {
+		if(err){
+			callback(null);
+		}
+		else{
+			if(rows.length>0){
+				callback(rows);
+			}
+			else{
+				callback(null);
+			}
+		}
+	});
+};

@@ -60,7 +60,7 @@ exports.viewCustomerApprovals=function(callback){
 exports.getCarDetails=function(driverId,callback){
   query={"_id":driverId},{video:0};
   
-  mongoHandler.findOne('driver', query,function(err, mongoDriver){
+  mongoHandler.findOne('driver', query,{},function(err, mongoDriver){
      if(!err){
         callback({statusCode:200,message:mongoDriver});
         console.log(mongoDriver.car.brand);
@@ -161,7 +161,7 @@ exports.deleteCustomerr=function(customerId,callback){
 }
 
 exports.getRevenueGraphs=function(callback){
-    var query=mysql_pool.query("select sum(bill_amount) as revenue,billing_date from rides where ride_status=2 group by billing_date order by billing_date limit 0,7",function(err,rows,fields){
+    var query=mysql_pool.query("select sum(bill_amount) as revenue,billing_date from rides where status=2 group by billing_date order by billing_date limit 0,7",function(err,rows,fields){
     if(!err){
       callback({statusCode:200,message:rows});
     }
@@ -172,7 +172,7 @@ exports.getRevenueGraphs=function(callback){
 }
 
 exports.getCustomerGraph=function(customerId,callback){
-  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where customer_id=? and ride_status=2 group by billing_date order by billing_date limit 0,7",[customerId],function(err,rows,fields){
+  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where customer_id=? and status=2 group by billing_date order by billing_date limit 0,7",[customerId],function(err,rows,fields){
     if(!err){
       if(rows.length<=0){
         callback({statusCode:401,message:"customer does not exist"});
@@ -195,7 +195,7 @@ exports.deleteBill=function(billid,callback){
     else if(rows[0].STATUS==3){
       callback({statusCode:201,message:"Bill already deleted"});
     } else{
-      query="UPDATE rides SET ride_status=3 WHERE RIDE_ID=?";
+      query="UPDATE rides SET status=3 WHERE RIDE_ID=?";
       mysql_pool.query(query,[billid],function(err,rows,fields){
         if(!err){
            callback({statusCode:200,message:"Bill deleted"});
@@ -209,7 +209,7 @@ exports.deleteBill=function(billid,callback){
 
 exports.getDriverGraph=function(driverId,callback){
 
-  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where driver_id=? and ride_status=2 group by billing_date order by billing_date limit 0,7",[driverId],function(err,rows,fields){
+  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where driver_id=? and status=2 group by billing_date order by billing_date limit 0,7",[driverId],function(err,rows,fields){
     if(!err){
       if(rows.length<=0){
         callback({statusCode:401,message:"driver does not exist"});
@@ -225,7 +225,7 @@ exports.getDriverGraph=function(driverId,callback){
 
 exports.getZipcodeGraph=function(zipcode,callback){
 
-  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where source_zipcode=? and ride_status=2 group by billing_date order by billing_date limit 0,7",[zipcode],function(err,rows,fields){
+  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where source_zipcode=? and status=2 group by billing_date order by billing_date limit 0,7",[zipcode],function(err,rows,fields){
     if(!err){
       if(rows.length<=0){
         callback({statusCode:401,message:"zipcode does not exist"});
@@ -241,7 +241,7 @@ exports.getZipcodeGraph=function(zipcode,callback){
 
 exports.getCityGraph=function(city,callback){
 
-  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where source_city=? and ride_status=2 group by billing_date order by billing_date limit 0,7",[city],function(err,rows,fields){
+  query=mysql_pool.query("select count(ride_id) as rides,billing_date from rides where source_city=? and status=2 group by billing_date order by billing_date limit 0,7",[city],function(err,rows,fields){
     if(!err){
       if(rows.length<=0){
         callback({statusCode:401,message:"city does not exist"});

@@ -97,7 +97,7 @@ exports.createDriver=function(driverid, firstname, lastname, password, email,
 };
 exports.getriderequest=function(driver_id,callback)
 {
-var query="select r.ride_id,c.customer_id,c.firstname,c.lastname,c.phone_number,r.source_location,r.source_street,r.source_area,r.source_zipcode,r.source_city,r.destination_location,r.destination_street,r.destination_city,r.destination_zipcode,r.distance from uber.customer c join uber.rides r on c.customer_id=r.customer_id where r.ride_status=0 and r.driver_id=?";
+var query="select r.ride_id,c.customer_id,c.firstname,c.lastname,c.phone_number,r.source_location,r.source_street,r.source_area,r.source_zipcode,r.source_city,r.destination_location,r.destination_street,r.destination_city,r.destination_zipcode,r.distance from uber.customer c join uber.rides r on c.customer_id=r.customer_id where r.status=0 and r.driver_id=?";
 
 console.log(query);
 mysql_pool.query(query,driver_id, function (err, rows, fields) 
@@ -140,7 +140,7 @@ exports.createBill=function(ride_id,billing_date,pickup_time,drop_time,status,di
 			var bill_amount=distance*10+duration*(1/60);
 			console.log(bill_amount);
 			//console.log(x);
-			var query="update uber.rides set billing_date=?, pickup_time=?,drop_time =?, ride_status = ?, bill_amount=? where ride_id=?";
+			var query="update uber.rides set billing_date=?, pickup_time=?,drop_time =?, status = ?, bill_amount=? where ride_id=?";
 			var billparams=[billing_date,pickup_time,drop_time,2,bill_amount,ride_id];
 			console.log(billparams);
 			mysql_pool.query(query, billparams,function (err, rows, fields) 
@@ -173,8 +173,8 @@ exports.inprogress=function(ride_id,ride_status,callback)
 	
 	console.log('In update progress DAO....');
 
-	var query="update uber.rides set ride_status =? where ride_id=?";
-	var params=[ride_id,ride_status];
+	var query="update uber.rides set status =? where ride_id=?";
+	var params=[ride_status,ride_id];
 console.log(ride_status);
 	mysql_pool.query(query,params, function (err, rows, fields) 
 			{
@@ -336,8 +336,8 @@ exports.updateDriverDetails=function(ssn,firstName,lastName,address,city,state,z
 exports.getDriverLocation = function(location, callback){
 	var combinedDriversArray = {};
 	
-		query = {location:{ $near:{  $geometry:{  type:"point", coordinates: location }, $maxDistance:16093.4}  } }
-		options = {limit : 2, "sort" : [['_id', 'desc']]};
+		var query = {location:{ $near:{  $geometry:{  type:"point", coordinates: location }, $maxDistance:16093.4}  } };
+		var options = {limit : 2, "sort" : [['_id', 'desc']]};
 		console.log(query);
 		mongoHandler.find('driver', query, options).toArray(function(err, mongoDrivers){
 			var res;
@@ -345,11 +345,12 @@ exports.getDriverLocation = function(location, callback){
 				
 				var driversArray = [];
 				for(res in mongoDrivers){
-					mongoDrivers[res].location = mongoDrivers[res].location.reverse();
+					console.log("mongoDrivers"+mongoDrivers[res]);
+					mongoDrivers[res].location = mongoDrivers[res].location.coordinates.reverse();
 					driversArray.push(mongoDrivers[res]._id);
 				}
 				
-				var query = "select driver_id,firstname, lastname, phone_number from driver where driver_id in ("+driversArray+")order by driver_id desc"
+				var query = "select driver_id,firstname, lastname, phone_number from driver where driver_id in ("+driversArray+") order by driver_id desc";
 				console.log("query is "+query);
 				mysql_pool.query(query, function (err, sqlDrivers, fields){
 				
@@ -373,7 +374,7 @@ exports.getDriverLocation = function(location, callback){
 						   
 					}
 		
-					console.log("Array "+combinedDriversArray["109090910"].firstName);
+					//console.log("Array "+combinedDriversArray["109090910"].firstName);
 	
 					res = {statusCode : 200, message : { driverData : combinedDriversArray, locations : mongoDrivers}};
 					callback(res);

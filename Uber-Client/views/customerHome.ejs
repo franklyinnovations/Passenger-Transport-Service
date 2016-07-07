@@ -32,57 +32,36 @@ background-color:black;
 </head>
  
 <body ng-app = "uberApp" >
-    <div class = "header">
-     <div class="row">
-    		<div class="col-md-4">
-    			<img src="/images/logo.png" width="250" height="40" style="margin-left:40px;margin-top:20px">
-    		</div>
-    		<div class="col-md-4">
-    		
-    		</div>
-    		<div class="col-md-4">
-    			<p align="right"><a href="/logout" class="btn btn-default" role="button" style="margin-top:20px;margin-right:30px">LOGOUT</a></p>
-    		</div>
-    	</div>
-
-    </div>
- <hr class = "verticalLine"/>
- <div class="row" ng-controller = "layoutController">
-    <br>
-  <div class="col-md-3"> 
-      
- <ul  class="nav nav-pills nav-stacked">
-     
-  <li role="presentation"><a ui-sref="customerProfile"><center>Profile</center></a></li>
-  <li role="presentation" class="active"><a ui-sref="customerTrips"><center>My Trips</center></a></li>
-  <li ng-if = "createRideHider" role="presentation"><a ui-sref="createRide"><center>Create Ride</center></a></li>
-  <li ng-if = "!createRideHider" role="presentation"><a ui-sref="updateRide"><center>Update Ride</center></a></li>
-  
-</ul>
-      
-      
-</div>
-      
- 
- <div class="col-md-9">
-     
-<div ui-view></div>
- </div>
-   
-</div>
-    
+	<div class = "header">
+		<div class="row">
+			<div class="col-md-4">
+				<img src="/images/logo.png" width="250" height="40" style="margin-left:40px;margin-top:20px">
+			</div>
+			<div class="col-md-4">
+			</div>
+			<div class="col-md-4">
+				<p align="right"><a href="/logout" class="btn btn-default" role="button" style="margin-top:20px;margin-right:30px">LOGOUT</a></p>
+			</div>
+		</div>
+	</div>
+	<hr class = "verticalLine"/>
+	<div class="row" ng-controller = "layoutController">
+		<br>
+		<div class="col-md-3"> 
+			<ul  class="nav nav-pills nav-stacked">     
+			<li role="presentation"><a ui-sref="customerProfile"><center>Profile</center></a></li>
+			<li role="presentation" class="active"><a ui-sref="customerTrips"><center>My Trips</center></a></li>
+			<li ng-if = "createRideHider" role="presentation"><a ui-sref="createRide"><center>Create Ride</center></a></li>
+			<li ng-if = "!createRideHider" role="presentation"><a ui-sref="updateRide"><center>Update Ride</center></a></li>
+			</ul>
+		</div>
+		<div class="col-md-9">
+			<div ui-view></div>
+		</div>
+	</div>
 </body>
-
-<script>
-    
-          $('ul.nav.nav-pills li a').click(function() {           
-    $(this).parent().addClass('active').siblings().removeClass('active');  
-});
-    
+<script> 
+	$('ul.nav.nav-pills li a').click(function() {           
+	$(this).parent().addClass('active').siblings().removeClass('active');  
+	});
 </script>
-    
-
- 
- 
- 
- 

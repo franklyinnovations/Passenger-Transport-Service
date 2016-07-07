@@ -114,12 +114,12 @@ function createBill(message,callback)
 {
 	
 	console.log('below are the things we  need to refractor ');
-	ride_id=message.message.ride_id;
-	billing_date=message.message.BILLING_DATE;
-	pickup_time=message.message.pickup_time;
-	drop_time=message.message.drop_time;
-	status=message.message.status;
-	distance=message.message.distance;
+	var ride_id=message.message.ride_id;
+	var billing_date=message.message.BILLING_DATE;
+	var pickup_time=message.message.pickup_time;
+	var drop_time=message.message.drop_time;
+	var status=message.message.status;
+	var distance=message.message.distance;
 	driverDAO.createBill(ride_id,billing_date,pickup_time,drop_time,status,distance,function(response){
 	console.log('In creation of bill in ride js  at server sides ');
 		console.log(response);
@@ -136,8 +136,8 @@ function updatedriverreview(message,callback){
 }
 
 function inprogress(message,callback){
-	ride_id=message.ride_id;
-	ride_status=message.ride_status;
+	var ride_id=message.ride_id;
+	var ride_status=message.ride_status;
 	console.log('Here in progress ');
 	console.log(ride_id);
 	ride_status=1;

@@ -23,6 +23,7 @@ module.exports = function (app)	{
   app.get('/getDrivers/:count',getDrivers);
   app.get('/getCustomers/:count',getCustomers);
   
+  
 };
 
 function viewDriverApprovals(req,res){
@@ -35,7 +36,7 @@ function viewDriverApprovals(req,res){
 function getDriverCarDetails(req,res){
   var driverId=req.body.driverId;
   if(driverId===undefined || driverId===null){
-    json_response={statusCode:401,message:"driverId is undefined"};
+    var json_response={statusCode:401,message:"driverId is undefined"};
     res.send(json_response);
   }
   console.log("driver id is:"+driverId);
@@ -82,14 +83,14 @@ function viewCustomerApprovals(req,res){
 }
 
 function approveCustomerRequest(req,res){
-  customerId=req.body.customerId;
+  var customerId=req.body.customerId;
   if(customerId===undefined || customerId===null){
     json_response={statusCode:401,message:"Customer id is undefined"};
     res.send(json_response);
   }
   var approveCustomerRequest_msg={customerId:customerId,reqType:"approveCustomerRequest"};
   mq_client.make_request('admin_service_req_q',approveCustomerRequest_msg,function(results){
-  res.send(results);
+	  res.send(results);
   });
 }
 

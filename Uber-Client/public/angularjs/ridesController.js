@@ -11,7 +11,7 @@ uberApp.controller("ridesController",function($scope, $state, $http, $window, Ng
 	$scope.noScroll = false;
 	$scope.count = 0;
 	
-	    uberService.setRideHider(true);
+	uberService.setRideHider(true);
 	 
 	NgMap.getMap().then(function(map) {
 	    Map = map;
@@ -23,18 +23,20 @@ uberApp.controller("ridesController",function($scope, $state, $http, $window, Ng
     $http.get('/getPendingReview').success(function(response){
     	
     	if(response.statusCode == 200){
-    		var modalInstance = $uibModal.open({
-    		      animation: $scope.animationsEnabled,
-    		      templateUrl: 'myModal.html',
-    		      controller : 'modalController',
-    		      backdrop  : 'static',
-    		      keyboard : false,
-    		      resolve: {
-    		        param: function () {
-    		          return {rideDetails: response.message};
-    		        }
-    		      }
-    		    }); 
+    		if(response.message.status!="2"){
+    			var modalInstance = $uibModal.open({
+      		      animation: $scope.animationsEnabled,
+      		      templateUrl: 'myModal.html',
+      		      controller : 'modalController',
+      		      backdrop  : 'static',
+      		      keyboard : false,
+      		      resolve: {
+      		        param: function () {
+      		          return {rideDetails: response.message};
+      		        }
+      		      }
+      		    }); 
+    		}
     	}
     	else{
     	        // $("myImageModal").modal("show");
@@ -129,6 +131,7 @@ uberApp.controller("ridesController",function($scope, $state, $http, $window, Ng
 		if(($scope.currCursor + range) > $scope.driverReviews.length)	{
 			range = $scope.driverReviews.length - $scope.currCursor;
 		}						
+		$scope.driverReviewsArray=[];
 		for(var i = $scope.currCursor ; i < range ; i++)	{
 			$scope.driverReviewsArray.push($scope.driverReviews[i]);
 		}
@@ -206,6 +209,11 @@ uberApp.controller("ridesController",function($scope, $state, $http, $window, Ng
 	    var distance = Map.directionsRenderers[0].directions.routes[0].legs[0].distance.value * 0.000621371;
 		locations = {source_location : {lat : source_address.lat, lng : source_address.lng},
 					destination_location : {lat : destination_address.lat, lng : destination_address.lng}};
+		var yyyy = new Date().getFullYear().toString();                                    
+        var mm = (new Date().getMonth()+1).toString(); // getMonth() is zero-based         
+        var dd  = new Date().getDate().toString();             
+                            
+        var billing_date=yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
 		rideData = {
 				
 				"driver_id" : driverId,
@@ -221,7 +229,8 @@ uberApp.controller("ridesController",function($scope, $state, $http, $window, Ng
 				"destination_city" : destination_address.city,
 				"destination_state" : destination_address.state,
 				"destination_zipcode" : destination_address.zipcode,
-				"distance" : distance
+				"distance" : distance,
+				"billing_date":billing_date
 	
 		};
 		

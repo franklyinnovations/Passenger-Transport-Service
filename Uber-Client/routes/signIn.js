@@ -47,7 +47,7 @@ function customerSignIn(req, res)	{
 		  res.send(json_responses);
 	}
 	
-	if(credentials.email.length  > 24 || credentials.password.length > 24){
+	if(credentials.email.length  > 32 || credentials.password.length > 8){
 		var json_responses = {"statusCode" : 401, message : "length cannot be greater than 24"};
 		res.send(json_responses);		
 	}

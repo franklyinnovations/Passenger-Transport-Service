@@ -27,12 +27,13 @@
          
   </div>
   <div class="modal-body">
-  <div id = "divId1"  infinite-scroll='loadMoreReviews()' infinite-scroll-distance='1'>
+  <div id = "divId1"  infinite-scroll='loadDriverReviews()' infinite-scroll-distance='1'>
 
   <table class="table">
+    <th><td>Customer ID
     <tr  ng-repeat="review in driverReviews"class="success">
-        <td>Review{{review}}</td>
-  </tr>
+        <td>{{review.customerid}}</td><td>{{review.rating}}</td><td>{{review.review}}</td>
+  	</tr>
   </table>
    </div>
   <div class="modal-footer">
